@@ -1,0 +1,14 @@
+{
+  "name": "csse142-ctf",
+  "version": "0.1.0",
+  "description": "Fibonacci-themed web CTF — Stage 1 (SQL injection)",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "initdb": "node init_db.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "sqlite3": "^5.1.7"
+  }
+}

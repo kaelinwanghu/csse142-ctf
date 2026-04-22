@@ -760,13 +760,9 @@
   }
 
   // ─── LOGIN ───
-  // Password: "11235813"  (first 8 fib numbers: 1,1,2,3,5,8,13 — wait, let's use 1,1,2,3,5,8,13,21)
-  // Actually password = "11235813" (first 8: 1 1 2 3 5 8 1 3 -> "11235813")
-  const VALID_PASS = '11235813';
-
-  function handleLogin(e) {
+  async function handleLogin(e) {
     e.preventDefault();
-    const user = document.getElementById('username').value.trim();
+    const user = document.getElementById('username').value;
     const pass = document.getElementById('password').value;
     const errEl = document.getElementById('login-error');
 
@@ -774,15 +770,26 @@
       errEl.textContent = 'Please enter a username, fellow devotee.';
       return false;
     }
-    if (pass !== VALID_PASS) {
-      errEl.textContent = 'Incorrect sequence. The Fibonacci gods are displeased.';
-      return false;
-    }
+
     errEl.textContent = '';
-    document.getElementById('login-page').style.display = 'none';
-    document.getElementById('dashboard').style.display = 'block';
-    document.getElementById('nav-username').textContent = '✦ ' + user;
-    initDashboard();
+    try {
+      const resp = await fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: user, password: pass })
+      });
+      const data = await resp.json();
+      if (!data.ok) {
+        errEl.textContent = data.error || 'Login failed.';
+        return false;
+      }
+      document.getElementById('login-page').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      document.getElementById('nav-username').textContent = '✦ ' + data.username;
+      initDashboard();
+    } catch (err) {
+      errEl.textContent = 'Network error: ' + err.message;
+    }
     return false;
   }
 
