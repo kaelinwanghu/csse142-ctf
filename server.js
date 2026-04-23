@@ -28,21 +28,24 @@ app.post("/login", (req, res) => {
   const { username = "", password = "" } = req.body || {};
 
   // INTENTIONALLY VULNERABLE: string concatenation, no parameterization.
-  const sql = `SELECT id, username, password FROM users WHERE username = '${username}'`;
+  const sql = `SELECT id, username FROM users WHERE username = '${username}'`;
 
   db.all(sql, (err, rows) => {
     if (err) {
-      return res.json({ ok: false, error: "SQL: " + err.message });
+      return res.json({ ok: false, error: err.message });
     }
     if (!rows.length) {
       return res.json({ ok: false, error: "Unknown user" });
     }
-    const row = rows[0];
-    if (row.username !== "admin" || password !== adminPassword) {
+    if (rows.length > 1) {
       return res.json({
         ok: false,
-        error: `No match for user "${row.username}"`,
+        error: rows.map((r) => r.username).join(", "),
       });
+    }
+    const row = rows[0];
+    if (row.username !== "admin" || password !== adminPassword) {
+      return res.json({ ok: false, error: row.username });
     }
     res.json({ ok: true, username: row.username });
   });
