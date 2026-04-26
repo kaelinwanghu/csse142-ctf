@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <title>Vault</title>
+  <style>
+    @font-face { font-family:'Cinzel'; font-style:normal; font-weight:400 900; font-display:swap; src:url('/fonts/cinzel.woff2') format('woff2'); }
+
+    :root { --gold:#f5c518; --bg:#0a0a0f; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+
+    body {
+      background:var(--bg); color:#e8e0d0; font-family:monospace;
+      min-height:100vh; display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      gap:1.5rem; overflow:hidden;
+    }
+
+    #bg-canvas {
+      position:fixed; inset:0; width:100%; height:100%;
+      opacity:0.05; pointer-events:none; z-index:0;
+    }
+
+    .content {
+      position:relative; z-index:1;
+      display:flex; flex-direction:column; align-items:center; gap:1.5rem;
+    }
+
+    .vault-wrap {
+      animation: glow-pulse 5s ease-in-out infinite;
+    }
+    @keyframes glow-pulse {
+      0%,100% { filter: drop-shadow(0 0 10px rgba(245,197,24,0.08)); }
+      50%      { filter: drop-shadow(0 0 28px rgba(245,197,24,0.25)); }
+    }
+
+    .vault-svg { width:240px; height:240px; }
+
+    h1 {
+      font-family:'Cinzel', serif; font-weight:900;
+      font-size:clamp(1.8rem, 5vw, 3rem);
+      color:var(--gold); letter-spacing:0.2em; opacity:0.9;
+    }
+
+    .status {
+      font-size:0.6rem; letter-spacing:0.45em;
+      color:#4ade80; opacity:0.6; text-transform:uppercase;
+      margin-top:-0.5rem;
+    }
+
+    .combo { display:flex; align-items:center; gap:0.9rem; }
+
+    .combo-digit {
+      font-family:'Cinzel', serif; font-size:2rem; font-weight:700;
+      color:var(--gold); opacity:0; animation:fadeUp 0.45s ease forwards;
+    }
+    .combo-sep {
+      color:var(--gold); opacity:0; font-size:1.2rem;
+      animation:fadeUp 0.45s ease forwards;
+    }
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(8px); }
+      to   { opacity:0.85; transform:translateY(0); }
+    }
+
+    .empty {
+      font-size:0.82rem; line-height:2; text-align:center; opacity:0.35;
+    }
+    .ominous { color:var(--gold); opacity:0.65; }
+
+    a {
+      color:var(--gold); opacity:0.2; font-size:0.7rem;
+      text-decoration:none; transition:opacity 0.2s; margin-top:0.25rem;
+    }
+    a:hover { opacity:0.55; }
+  </style>
+</head>
+<body>
+  <canvas id="bg-canvas"></canvas>
+
+  <div class="content">
+    <div class="vault-wrap">
+      <svg class="vault-svg" viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+        <!-- static outer ring -->
+        <circle cx="110" cy="110" r="107" fill="none" stroke="rgba(245,197,24,0.14)" stroke-width="2"/>
+        <!-- rotating tick ring -->
+        <g id="tick-ring">
+          <animateTransform attributeName="transform" type="rotate"
+            from="0 110 110" to="360 110 110" dur="45s" repeatCount="indefinite"/>
+        </g>
+        <!-- inner rings -->
+        <circle cx="110" cy="110" r="84" fill="none" stroke="rgba(245,197,24,0.16)" stroke-width="1.5"/>
+        <circle cx="110" cy="110" r="60" fill="rgba(245,197,24,0.02)" stroke="rgba(245,197,24,0.22)" stroke-width="1"/>
+        <!-- cardinal bolts -->
+        <circle cx="110" cy="5"   r="5" fill="#0a0a0f" stroke="rgba(245,197,24,0.45)" stroke-width="1.5"/>
+        <circle cx="215" cy="110" r="5" fill="#0a0a0f" stroke="rgba(245,197,24,0.45)" stroke-width="1.5"/>
+        <circle cx="110" cy="215" r="5" fill="#0a0a0f" stroke="rgba(245,197,24,0.45)" stroke-width="1.5"/>
+        <circle cx="5"   cy="110" r="5" fill="#0a0a0f" stroke="rgba(245,197,24,0.45)" stroke-width="1.5"/>
+        <!-- diagonal bolts -->
+        <circle cx="183" cy="37"  r="3.5" fill="#0a0a0f" stroke="rgba(245,197,24,0.25)" stroke-width="1.5"/>
+        <circle cx="183" cy="183" r="3.5" fill="#0a0a0f" stroke="rgba(245,197,24,0.25)" stroke-width="1.5"/>
+        <circle cx="37"  cy="183" r="3.5" fill="#0a0a0f" stroke="rgba(245,197,24,0.25)" stroke-width="1.5"/>
+        <circle cx="37"  cy="37"  r="3.5" fill="#0a0a0f" stroke="rgba(245,197,24,0.25)" stroke-width="1.5"/>
+        <!-- phi -->
+        <text x="110" y="124" text-anchor="middle"
+              fill="rgba(245,197,24,0.4)" font-family="Cinzel,serif" font-size="44" font-weight="400">φ</text>
+        <!-- fixed indicator triangle at top -->
+        <polygon points="110,88 105.5,79 114.5,79" fill="rgba(245,197,24,0.7)"/>
+      </svg>
+    </div>
+
+    <h1>The Vault</h1>
+    <div class="status">combination accepted</div>
+
+    <div class="combo" id="combo"></div>
+
+    <div class="empty">
+      The vault is empty.<br>
+      <span class="ominous">Someone got here before you.</span>
+    </div>
+
+    <a href="/">← back</a>
+  </div>
+
+  <!-- Z29sZGVuLXJhdGlvOiDPhg== -->
+  <script>
+    const bg = document.getElementById('bg-canvas');
+    const ctx = bg.getContext('2d');
+    function drawBg() {
+      bg.width = innerWidth; bg.height = innerHeight;
+      ctx.strokeStyle = '#f5c518'; ctx.lineWidth = 1; ctx.beginPath();
+      const cx = bg.width * 0.5, cy = bg.height * 0.5;
+      let r = 4, a = 0; ctx.moveTo(cx, cy);
+      for (let i = 0; i < 800; i++) {
+        a += 0.05; r = 4 * Math.pow(1.618, a / (2 * Math.PI));
+        ctx.lineTo(cx + r * Math.cos(a), cy + r * Math.sin(a));
+      }
+      ctx.stroke();
+    }
+    addEventListener('resize', drawBg); drawBg();
+
+    const ring = document.getElementById('tick-ring');
+    for (let i = 0; i < 60; i++) {
+      const angle = (i / 60) * Math.PI * 2 - Math.PI / 2;
+      const major = i % 5 === 0;
+      const r1 = 107, r2 = major ? 92 : 99;
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', 110 + r1 * Math.cos(angle));
+      line.setAttribute('y1', 110 + r1 * Math.sin(angle));
+      line.setAttribute('x2', 110 + r2 * Math.cos(angle));
+      line.setAttribute('y2', 110 + r2 * Math.sin(angle));
+      line.setAttribute('stroke', `rgba(245,197,24,${major ? 0.55 : 0.18})`);
+      line.setAttribute('stroke-width', major ? 1.5 : 1);
+      ring.appendChild(line);
+    }
+
+    const comboEl = document.getElementById('combo');
+    [1,1,2,3,5].forEach((d, i) => {
+      if (i > 0) {
+        const sep = document.createElement('span');
+        sep.className = 'combo-sep';
+        sep.textContent = '·';
+        sep.style.animationDelay = `${0.3 + i * 0.14}s`;
+        comboEl.appendChild(sep);
+      }
+      const span = document.createElement('span');
+      span.className = 'combo-digit';
+      span.textContent = d;
+      span.style.animationDelay = `${0.3 + i * 0.14}s`;
+      comboEl.appendChild(span);
+    });
+
+    fetch('/fib0n4cc1').catch(() => {});
+  </script>
+</body>
+</html>

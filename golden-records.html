@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <title>Golden Records</title>
+  <style>
+    body { background:#0a0a0f; color:#e8e0d0; font-family:monospace; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; margin:0; text-align:center; gap:0.5rem; }
+    h1 { font-size:2rem; color:#f5c518; }
+    .big { font-size:4rem; animation:spin 4s linear infinite; display:inline-block; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .track { display:flex; justify-content:space-between; width:420px; font-size:0.8rem; padding:0.4rem 0; border-bottom:1px solid rgba(245,197,24,0.1); opacity:0.55; }
+    .track:last-child { border:none; }
+    .dur { opacity:0.4; }
+    p { opacity:0.35; font-size:0.75rem; margin-top:1rem; }
+  </style>
+</head>
+<body>
+  <div class="big">💿</div>
+  <h1>Golden Records</h1>
+  <br>
+  <div class="track"><span>01. Phi (feat. Euclid)</span><span class="dur">1:37</span></div>
+  <div class="track"><span>02. Never Gonna Give You φ</span><span class="dur">3:33</span></div>
+  <div class="track"><span>03. Spiral Out (Keep Going)</span><span class="dur">8:07</span></div>
+  <div class="track"><span>04. 1, 1, 2, 3 (It's a Rap)</span><span class="dur">2:11</span></div>
+  <div class="track"><span>05. Golden (Ratio Mix)</span><span class="dur">5:02</span></div>
+  <div class="track"><span>06. The Flag is in Another Castle</span><span class="dur">∞</span></div>
+  <p>None of these are real. Neither is the flag here.</p>
+  <a href="/" style="color:#f5c518;opacity:0.3;font-size:0.75rem;margin-top:0.5rem">← back</a>
+</body>
+</html>

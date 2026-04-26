@@ -7,7 +7,9 @@ const PORT = process.env.PORT || 3000;
 
 const app = express();
 app.use(express.json());
-app.use(express.static(__dirname));
+app.use('/fonts', express.static(path.join(__dirname, 'fonts')));
+app.get('/favicon.png', (_, res) => res.sendFile(path.join(__dirname, 'favicon.png')));
+app.get('/', (_, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
 const db = new sqlite3.Database(DB_PATH);
 
@@ -23,6 +25,29 @@ db.get(
     adminPassword = row.password;
   },
 );
+
+// ─── TROLL ROUTES ───
+const page = (f) => (_, res) => res.sendFile(path.join(__dirname, f));
+
+app.get("/members",       page("members.html"));
+app.get("/archive",       page("archive.html"));
+app.get("/vault",         page("vault.html"));
+app.get("/sacred-texts",  page("sacred-texts.html"));
+app.get("/golden-records",page("golden-records.html"));
+app.get("/inner-circle",  page("inner-circle.html"));
+app.get("/sequencer",     page("sequencer.html"));
+app.get("/ebmarah",       page("harambe.html"));
+
+// ─── REAL ARCHIVE ROUTE ───
+app.get("/fib0n4cc1", (req, res) => {
+  if (req.headers["golden-ratio"] === "φ") {
+    return res.sendFile(path.join(__dirname, "FIB_2584B.jpg"));
+  }
+  if ("golden-ratio" in req.headers) {
+    return res.status(403).send("golden-ratio: false");
+  }
+  res.status(403).json({ error: "hmmm... missing header" });
+});
 
 app.post("/login", (req, res) => {
   const { username = "", password = "" } = req.body || {};
