@@ -39,8 +39,15 @@ app.get("/sequencer",     page("sequencer.html"));
 app.get("/ebmarah",       page("harambe.html"));
 
 // ─── REAL ARCHIVE ROUTE ───
+const PHI_VARIANTS = new Set([
+  "φ",  "ϕ",  "Φ",  "phi",
+  Buffer.from([0xcf, 0x86]).toString("latin1"),  // UTF-8 bytes of φ via browser fetch
+  Buffer.from([0xcf, 0x95]).toString("latin1"),  // UTF-8 bytes of ϕ
+  Buffer.from([0xce, 0xa6]).toString("latin1"),  // UTF-8 bytes of Φ
+]);
+
 app.get("/fib0n4cc1", (req, res) => {
-  if (req.headers["golden-ratio"] === "φ") {
+  if (PHI_VARIANTS.has(req.headers["golden-ratio"])) {
     return res.sendFile(path.join(__dirname, "FIB_2584B.jpg"));
   }
   if ("golden-ratio" in req.headers) {
