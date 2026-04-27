@@ -1,0 +1,4 @@
+node_modules
+ctf.db
+*.md
+.git
